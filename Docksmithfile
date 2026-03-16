@@ -1,6 +1,6 @@
 FROM alpine:3.18
 WORKDIR /app
+ENV GREETING=Hello
 COPY . /app
-RUN echo "Hello from Docksmith"
-ENV NAME=Docksmith
-CMD ["python", "main.py"]
+RUN /bin/sh /app/run.sh
+CMD ["/bin/sh", "/app/run.sh"]

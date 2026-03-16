@@ -34,43 +34,27 @@ from build_engine.builder import build_image   # noqa: F401  (re-exported for CL
 # ══════════════════════════════════════════════════════════════════════════════
 
 def list_images():
-    """
-    Return a list of all stored images.
-
-    Returns:
-        A list of dicts, one per image:
-        [
-            {
-                "name":    "myapp",
-                "tag":     "latest",
-                "id":      "a3f9b2c1d4e5",
-                "created": "2026-03-10T14:30:00"
-            },
-            ...
-        ]
-    """
-    # ── STUB — DELETE THIS BLOCK WHEN MEMBER 3 IS READY ──────────────────────
-    print("  [STUB] Member 3 not integrated yet — showing fake images")
-    return [
-        {"name": "myapp",  "tag": "latest", "id": "a3f9b2c1d4e5", "created": "2026-03-10"},
-        {"name": "webapp", "tag": "v1.0",   "id": "f1e2d3c4b5a6", "created": "2026-03-09"},
-    ]
-    # ─────────────────────────────────────────────────────────────────────────
+    from storage.image_store import list_images as _list_images
+    raw = _list_images()
+    result = []
+    for img in raw:
+        digest = img.get("digest", "")
+        result.append({
+            "name":    img.get("name", ""),
+            "tag":     img.get("tag", ""),
+            "id":      digest.replace("sha256:", "")[:12],
+            "created": img.get("created", "")
+        })
+    return result
 
 
 def delete_image(image: str):
-    """
-    Delete an image and its associated layers.
-
-    Parameters:
-        image — "myapp:latest"
-
-    Raises:
-        FileNotFoundError — if the image doesn't exist
-    """
-    # ── STUB — DELETE THIS BLOCK WHEN MEMBER 3 IS READY ──────────────────────
-    print(f"  [STUB] Member 3 not integrated yet — would delete '{image}'")
-    # ─────────────────────────────────────────────────────────────────────────
+    from storage.image_store import remove_image
+    if ":" in image:
+        name, tag = image.split(":", 1)
+    else:
+        name, tag = image, "latest"
+    remove_image(name, tag)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -78,23 +62,4 @@ def delete_image(image: str):
 # Replace with: from runtime.runner import run_container
 # ══════════════════════════════════════════════════════════════════════════════
 
-def run_container(image: str, env_overrides: dict):
-    """
-    Run a container from an image.
-
-    Parameters:
-        image         — "myapp:latest"
-        env_overrides — extra env vars from -e flags, e.g. {"NAME": "World"}
-
-    Returns:
-        int — the container's exit code (0 = success)
-
-    Raises:
-        FileNotFoundError — if the image doesn't exist
-        RuntimeError      — if container setup fails
-    """
-    # ── STUB — DELETE THIS BLOCK WHEN MEMBER 4 IS READY ──────────────────────
-    print(f"  [STUB] Member 4 not integrated yet — would run '{image}'")
-    print(f"  [STUB] Env overrides: {env_overrides}")
-    return 0  # pretend success
-    # ─────────────────────────────────────────────────────────────────────────
+from runtime.runner import run_container
